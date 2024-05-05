@@ -1,0 +1,46 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Counter } from "../cloudstate/counter";
+import { useCloudState } from "freestyle-sh";
+import CounterButton from "../components/CounterButton.svelte";
+
+const counter = useCloudState(Counter);
+const count = await counter.getCount();
+---
+
+<Layout title="Freestyle Astro">
+  <main>
+    <div>
+      <h1>freestyle.sh – Astro</h1>
+      <CounterButton client:load count={count} />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(37, 37, 44);
+  }
+
+  main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    color: white;
+    margin-top: 2rem;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+</style>
