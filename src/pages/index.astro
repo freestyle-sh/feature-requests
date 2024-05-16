@@ -1,18 +1,25 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { Counter } from "../cloudstate/counter";
-import { useCloudState } from "freestyle-sh";
-import CounterButton from "../components/CounterButton.svelte";
+import Login from "../components/Login.svelte";
+import FeatureRequests from "../components/FeatureRequests.svelte";
+import { useCloud } from "freestyle-sh";
+import { FeatureRequestsListCS } from "../cloudstate/feature-requests";
+import "../cloudstate/auth";
+import "../cloudstate/feature-requests";
+import "../cloudstate/app";
 
-const counter = useCloudState(Counter);
-const count = await counter.getCount();
+const featureRequestsCS = useCloud<typeof FeatureRequestsListCS>(
+  "feature-requests-list"
+);
+const featureRequets = await featureRequestsCS.getRequests();
 ---
 
 <Layout title="Freestyle Astro">
   <main>
     <div>
       <h1>freestyle.sh – Astro</h1>
-      <CounterButton client:load count={count} />
+      <Login client:load />
+      <FeatureRequests client:load featureRequests={featureRequets} />
     </div>
   </main>
 </Layout>
