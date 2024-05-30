@@ -100,13 +100,46 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
     }
   >();
 
-  async startAuthenticationOrRegistration(username: string) {
+  async startAuthenticationOrRegistration(
+    username: string
+  ): Promise<
+    | { signup: PublicKeyCredentialCreationOptionsJSON }
+    | { login: PublicKeyCredentialRequestOptionsJSON }
+  > {
     const userId = this.usernames.get(username)?.userId;
+    // const request = useRequest();
+    // const newSessionId = crypto.randomUUID();
+    // request.headers.set("cookie", `freestyle-session-id=${newSessionId}`);
     if (!userId) {
+      // return new Response(
+      //   JSON.stringify({
+      //     result: {
+      //       signup: await this.startRegistration(username),
+      //     },
+      //   }),
+      //   {
+      //     headers: new Headers({
+      //       "set-cookie": `freestyle-session-id=${newSessionId}; Path=/; HttpOnly; SameSite=Strict; Secure`,
+      //     }),
+      //   }
+      // );
       return {
         signup: await this.startRegistration(username),
       };
     }
+
+    // return new Response(
+    //   JSON.stringify({
+    //     result: {
+    //       login: await this.startAuthentication(username),
+    //     },
+    //   }),
+    //   {
+    //     headers: new Headers({
+    //       "set-cookie": `freestyle-session-id=${crypto.randomUUID()}; Path=/; HttpOnly; SameSite=Strict;`,
+    //     }),
+    //   }
+    // );
 
     return {
       login: await this.startAuthentication(username),
@@ -150,7 +183,7 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
     const credential = await verifyRegistrationResponse({
       response: registrationResponse,
       expectedChallenge: registrationSession.challenge,
-      expectedOrigin: "https://localhost:4321",
+      expectedOrigin: "http://localhost:8910",
       expectedRPID: "localhost",
     }).catch((e) => {
       console.error(e);
@@ -253,7 +286,7 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
     }
 
     const rpID = "localhost";
-    const origin = "https://localhost:4321";
+    const origin = "http://localhost:8910";
 
     const credential = await verifyAuthenticationResponse({
       response: authenticationResponse,

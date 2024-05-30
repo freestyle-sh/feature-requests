@@ -4,13 +4,16 @@ import Login from "../components/Login.svelte";
 import FeatureRequests from "../components/FeatureRequests.svelte";
 import { useCloud } from "freestyle-sh";
 import { FeatureRequestsListCS } from "../cloudstate/feature-requests";
-import "../cloudstate/auth";
-import "../cloudstate/feature-requests";
-import "../cloudstate/app";
+import { configureFreestyle } from "freestyle-sh";
+
+configureFreestyle({
+  createHeaders: () => Astro.request.headers,
+});
 
 const featureRequestsCS = useCloud<typeof FeatureRequestsListCS>(
   "feature-requests-list"
 );
+
 const featureRequets = await featureRequestsCS.getRequests();
 ---
 

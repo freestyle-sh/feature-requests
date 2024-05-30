@@ -27,6 +27,6 @@
     "@simplewebauthn/browser": "^10.0.0",
     "@simplewebauthn/server": "^10.0.0",
     "@simplewebauthn/types": "^10.0.0",
-    "freestyle-sh": "^0.1.28"
+    "freestyle-sh": "file:../xcloudplatform/packages/freestyle-sh/dist/npm"
   }
 }

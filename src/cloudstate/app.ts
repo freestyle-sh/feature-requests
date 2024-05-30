@@ -22,7 +22,7 @@ export class FeatureRequestsAppCS extends PasskeyAuthentication {
   users = new Map<string, UserCS>();
   featureList = new FeatureRequestsListCS("feature-requests-list", this);
 
-  override async finishRegistration(passkey: FinishPasskeyRegistrationJSON) {
+  async finishRegistration(passkey: FinishPasskeyRegistrationJSON) {
     const info = await super.finishRegistration(passkey);
     const user = new UserCS(info.id, info.username);
     this.users.set(user.id, user);
@@ -32,21 +32,17 @@ export class FeatureRequestsAppCS extends PasskeyAuthentication {
     };
   }
 
-  override getCurrentUser() {
+  getCurrentUser() {
     const info = super.getCurrentUser();
     if (!info) return;
     return this.users.get(info.id);
   }
 
-  override getDefiniteCurrentUser() {
+  getDefiniteCurrentUser() {
     const user = this.getCurrentUser();
     if (!user) {
       throw new Error("User not found");
     }
     return user;
-  }
-
-  override startAuthenticationOrRegistration(username: string) {
-    return super.startAuthenticationOrRegistration(username);
   }
 }

@@ -37,7 +37,7 @@ export class FeatureRequestsListCS {
 
   constructor(public id: string, public auth: DefiniteAuthenticatorCS) {}
 
-  async createRequest(title: string, description: string) {
+  createRequest(title: string, description: string) {
     const user = this.auth.getDefiniteCurrentUser();
     const request = new FeatureRequestCS(this.auth, title, description, user);
     this.requests.push(request);

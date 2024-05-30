@@ -1,14 +1,11 @@
 import { defineConfig } from "astro/config";
 import deno from "freestyle-deno-astro-adapter";
 import svelte from "@astrojs/svelte";
-import mkcert from "vite-plugin-mkcert";
-
-import auth from "auth-astro";
 
 // https://astro.build/config
 export default defineConfig({
   adapter: deno(),
-  integrations: [svelte(), auth()],
+  integrations: [svelte()],
   output: "server",
   vite: {
     ssr: {
@@ -20,6 +17,5 @@ export default defineConfig({
       platform: "node",
       keepNames: true,
     },
-    plugins: [mkcert()],
   },
 });
