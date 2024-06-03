@@ -1,10 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Login from "../components/Login.svelte";
-import FeatureRequests from "../components/FeatureRequests.svelte";
 import { useCloud } from "freestyle-sh";
 import { FeatureRequestsListCS } from "../cloudstate/feature-requests";
 import { configureFreestyle } from "freestyle-sh";
+import type { FeatureRequestsAppCS } from "$lib/cloudstate/app";
+import FeatureRequests from "$lib/components/FeatureRequests.svelte";
+import App from "$lib/components/UserProfile.svelte";
 
 configureFreestyle({
   createHeaders: () => Astro.request.headers,
@@ -13,44 +14,20 @@ configureFreestyle({
 const featureRequestsCS = useCloud<typeof FeatureRequestsListCS>(
   "feature-requests-list"
 );
+const app = useCloud<typeof FeatureRequestsAppCS>("feature-requests-app");
 
 const featureRequets = await featureRequestsCS.getRequests();
+const user = await app.getUserInfo();
 ---
 
 <Layout title="Freestyle Astro">
   <main>
     <div>
-      <h1>freestyle.sh – Astro</h1>
-      <Login client:load />
+      <div class="border-b py-3 flex justify-between px-4 items-center">
+        Freestyle Feature Requests
+        <App user={user} client:load />
+      </div>
       <FeatureRequests client:load featureRequests={featureRequets} />
     </div>
   </main>
 </Layout>
-
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background-color: rgb(37, 37, 44);
-  }
-
-  main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: sans-serif;
-    color: white;
-    margin-top: 2rem;
-  }
-
-  div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
-</style>

@@ -1,4 +1,6 @@
 ---
+import "$lib/styles/app.css";
+
 interface Props {
   title: string;
 }
@@ -20,10 +22,3 @@ const { title } = Astro.props;
     <slot />
   </body>
 </html>
-
-<style is:global>
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
-  @tailwind variants;
-</style>

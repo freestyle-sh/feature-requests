@@ -7,25 +7,53 @@ import {
 
 @cloudstate
 export class UserCS {
-  constructor(public id: string, public username: string) {}
+  constructor(
+    public id: string,
+    public username: string,
+    public image: ImageCS
+  ) {}
 
   getInfo() {
     return {
+      username: this.username,
       id: this.id,
+      image: this.image.getUrlPath(),
     };
+  }
+}
+
+@cloudstate
+class ImageCS {
+  id = crypto.randomUUID();
+  constructor(public blob: Blob) {}
+
+  async fetch() {
+    return new Response(await this.blob.arrayBuffer(), {
+      headers: {
+        "content-type": this.blob.type,
+        "content-length": this.blob.size.toString(),
+      },
+    });
+  }
+
+  getUrlPath() {
+    return `/cloudstate/instances/${this.id}`;
   }
 }
 
 @cloudstate
 export class FeatureRequestsAppCS extends PasskeyAuthentication {
   static id = "feature-requests-app" as const;
-  users = new Map<string, UserCS>();
+  users: UserCS[] = [];
   featureList = new FeatureRequestsListCS("feature-requests-list", this);
 
   async finishRegistration(passkey: FinishPasskeyRegistrationJSON) {
     const info = await super.finishRegistration(passkey);
-    const user = new UserCS(info.id, info.username);
-    this.users.set(user.id, user);
+    const blob = await fetch("https://picsum.photos/200/200").then((res) =>
+      res.blob()
+    );
+    const user = new UserCS(info.id, info.username, new ImageCS(blob));
+    this.users.push(user);
     return {
       id: user.id,
       username: user.username,
@@ -35,7 +63,11 @@ export class FeatureRequestsAppCS extends PasskeyAuthentication {
   getCurrentUser() {
     const info = super.getCurrentUser();
     if (!info) return;
-    return this.users.get(info.id);
+    return this.users.find((user) => user.id === info.id);
+  }
+
+  getUserInfo() {
+    return this.getCurrentUser()?.getInfo();
   }
 
   getDefiniteCurrentUser() {

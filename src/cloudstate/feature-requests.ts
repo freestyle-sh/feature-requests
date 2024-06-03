@@ -1,16 +1,17 @@
 import { cloudstate } from "freestyle-sh";
-import { type BaseUserCS, type DefiniteAuthenticatorCS } from "./auth";
+import { type DefiniteAuthenticatorCS } from "./auth";
+import type { UserCS } from "./app";
 
 @cloudstate
 export class FeatureRequestCS {
   id = crypto.randomUUID();
-  private votes: BaseUserCS[] = [];
+  private votes: UserCS[] = [];
 
   constructor(
-    private auth: DefiniteAuthenticatorCS,
+    private auth: DefiniteAuthenticatorCS<UserCS>,
     public description: string,
     public title: string,
-    public creator: BaseUserCS
+    public creator: UserCS
   ) {}
 
   upvote() {
@@ -26,6 +27,8 @@ export class FeatureRequestCS {
       description: this.description,
       votes: this.votes.length,
       isOwner: this.creator === user,
+      ownerDisplayName: this.creator.username,
+      ownerImageUrl: this.creator.image.getUrlPath(),
     };
   }
 }
@@ -35,7 +38,10 @@ export class FeatureRequestsListCS {
   requests: FeatureRequestCS[] = [];
   deletedRequests: FeatureRequestCS[] = [];
 
-  constructor(public id: string, public auth: DefiniteAuthenticatorCS) {}
+  constructor(
+    public id: string,
+    public auth: DefiniteAuthenticatorCS<UserCS>
+  ) {}
 
   createRequest(title: string, description: string) {
     const user = this.auth.getDefiniteCurrentUser();

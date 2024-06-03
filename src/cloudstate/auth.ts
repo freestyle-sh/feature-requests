@@ -73,9 +73,9 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
   userRegistrations = new Map<
     string,
     {
-      registrations: Set<
-        NonNullable<VerifiedRegistrationResponse["registrationInfo"]>
-      >;
+      registrations: NonNullable<
+        VerifiedRegistrationResponse["registrationInfo"]
+      >[];
     }
   >();
 
@@ -198,7 +198,7 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
 
     if (!user) {
       user = {
-        registrations: new Set(),
+        registrations: [],
       };
       this.userRegistrations.set(registrationSession.user.id, user);
     }
@@ -207,7 +207,7 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
       throw new Error("Could not create registration info");
     }
 
-    user.registrations.add(credential.registrationInfo);
+    user.registrations.push(credential.registrationInfo);
 
     this.sessions.set(sessionId, {
       userId: registrationSession.user.id,
@@ -247,11 +247,9 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
       await generateAuthenticationOptions({
         rpID,
         // Require users to use a previously-registered authenticator
-        allowCredentials: Array.from(user.registrations.values()).map(
-          (registration) => ({
-            id: registration.credentialID,
-          })
-        ),
+        allowCredentials: user.registrations.map((registration) => ({
+          id: registration.credentialID,
+        })),
       });
 
     this.authenticationSessions.set(sessionId, { username: username, options });

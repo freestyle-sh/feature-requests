@@ -4,5 +4,10 @@
     "experimentalDecorators": true,
     "target": "ESNext",
     "module": "ESNext",
+    "baseUrl": ".",
+    "paths": {
+      "$lib/*": ["./src/*"]
+    }
   },
+  "exclude": ["node_modules", "dist", ".freestyle"]
 }
