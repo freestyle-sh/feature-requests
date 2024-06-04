@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useCloud } from "freestyle-sh";
-  import type { FeatureRequestsAppCS } from "../cloudstate/app";
+  import type { FeatureRequestsAppCS, UserCS } from "../cloudstate/app";
   import {
     handlePasskeyAuthentication,
     handlePasskeyRegistration,
@@ -14,9 +14,13 @@
 
   export let or: (() => unknown) | undefined = undefined;
   export let then: (() => unknown) | undefined = undefined;
+  export let size: "sm" | "default" | "icon" | "lg" = "default";
+  export { className as class };
 
   const auth = useCloud<typeof FeatureRequestsAppCS>("feature-requests-app");
+  let className = "";
   let username: string;
+  let displayName: string;
 
   async function handleLogin() {
     const options = await auth.startAuthenticationOrRegistration(username);
@@ -32,24 +36,57 @@
     });
     await then?.();
   }
+
+  async function configureProfile() {
+    const user = useCloud<typeof UserCS>($userStore.user!.id);
+    user.setDisplayName(displayName).then(() => {
+      userStore.set({
+        user: {
+          ...$userStore.user!,
+          displayName,
+        },
+      });
+    });
+  }
 </script>
 
 <div>
-  {#if $userStore.user}
-    <Button on:click={then || or}>
+  {#if $userStore.user?.displayName}
+    <Button class={className} {size} on:click={then || or}>
       <slot />
     </Button>
   {:else}
-    <Dialog.Root>
-      <Dialog.Trigger class={buttonVariants()}>
+    <Dialog.Root
+      open={$userStore.user && $userStore.user?.displayName === undefined}
+    >
+      <Dialog.Trigger class={buttonVariants() + className}>
         <slot />
       </Dialog.Trigger>
       <Dialog.Content>
-        <Dialog.Header>
-          <Dialog.Title class="text-center">Sign In</Dialog.Title>
-          <Label for="email">Email</Label>
-          <div class="grid gap-4">
+        <div class="grid gap-4">
+          {#if $userStore.user}
+            <Dialog.Header>
+              <Dialog.Title class="text-center">Configure Profile</Dialog.Title>
+            </Dialog.Header>
+            <Label for="name">Display Name</Label>
             <Input
+              placeholder="My Name"
+              id="name"
+              type="text"
+              bind:value={displayName}
+            />
+            <Dialog.Footer>
+              <Button class="w-full" type="submit" on:click={configureProfile}>
+                Save Profile
+              </Button>
+            </Dialog.Footer>
+          {:else}
+            <Dialog.Header>
+              <Dialog.Title class="text-center">Sign In</Dialog.Title>
+            </Dialog.Header>
+            <Label for="email">Email</Label>
+            <Input
+              placeholder="my@email.com"
               id="email"
               type="email"
               autocomplete="on"
@@ -60,8 +97,8 @@
                 Continue with Passkey
               </Button>
             </Dialog.Footer>
-          </div>
-        </Dialog.Header>
+          {/if}
+        </div>
       </Dialog.Content>
     </Dialog.Root>
   {/if}

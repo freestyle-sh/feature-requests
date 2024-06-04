@@ -10,13 +10,26 @@ export class UserCS {
   constructor(
     public id: string,
     public username: string,
-    public image: ImageCS
+    public image: ImageCS,
+    public displayName?: string
   ) {}
 
-  getInfo() {
+  setDisplayName(displayName: string) {
+    this.displayName = displayName;
+  }
+
+  getPersonalInfo() {
     return {
       username: this.username,
       id: this.id,
+      image: this.image.getUrlPath(),
+      displayName: this.displayName,
+    };
+  }
+
+  getPublicInfo() {
+    return {
+      displayName: this.displayName,
       image: this.image.getUrlPath(),
     };
   }
@@ -67,7 +80,7 @@ export class FeatureRequestsAppCS extends PasskeyAuthentication {
   }
 
   getUserInfo() {
-    return this.getCurrentUser()?.getInfo();
+    return this.getCurrentUser()?.getPersonalInfo();
   }
 
   getDefiniteCurrentUser() {
