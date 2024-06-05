@@ -18,6 +18,10 @@ export class UserCS {
     this.displayName = displayName;
   }
 
+  setImage(image: string) {
+    this.image = new ImageCS(new Blob([image]));
+  }
+
   getPersonalInfo() {
     return {
       username: this.username,
@@ -57,14 +61,25 @@ class ImageCS {
 @cloudstate
 export class FeatureRequestsAppCS extends PasskeyAuthentication {
   static id = "feature-requests-app" as const;
+
+  get rpid() {
+    return import.meta.env.DEV ? "localhost" : "feature-requests.freestyle.dev";
+  }
+
+  get origin() {
+    return import.meta.env.DEV
+      ? "http://localhost:8910"
+      : "https://feature-requests.freestyle.dev";
+  }
+
   users: UserCS[] = [];
   featureList = new FeatureRequestsListCS("feature-requests-list", this);
 
   async finishRegistration(passkey: FinishPasskeyRegistrationJSON) {
     const info = await super.finishRegistration(passkey);
-    const blob = await fetch("https://picsum.photos/200/200").then((res) =>
-      res.blob()
-    );
+    const blob = await fetch(
+      `https://api.dicebear.com/8.x/bottts/svg?seed=${Math.random()}`
+    ).then((res) => res.blob());
     const user = new UserCS(info.id, info.username, new ImageCS(blob));
     this.users.push(user);
     return {

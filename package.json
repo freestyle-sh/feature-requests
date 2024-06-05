@@ -34,6 +34,8 @@
     "@simplewebauthn/browser": "^10.0.0",
     "@simplewebauthn/server": "^10.0.0",
     "@simplewebauthn/types": "^10.0.0",
+    "@types/cookie": "^0.6.0",
+    "cookie": "^0.6.0",
     "freestyle-sh": "../xcloudplatform/packages/freestyle-sh/dist/npm",
     "svelte-headless-table": "^0.18.2"
   }

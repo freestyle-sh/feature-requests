@@ -100,6 +100,14 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
     }
   >();
 
+  get rpid() {
+    return "localhost";
+  }
+
+  get origin() {
+    return "http://localhost:8910";
+  }
+
   async startAuthenticationOrRegistration(
     username: string
   ): Promise<
@@ -155,7 +163,7 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
 
     const options = await generateRegistrationOptions({
       rpName: "Freestyle Feature Requests",
-      rpID: "localhost",
+      rpID: this.rpid,
       userID: Uint8Array.from(crypto.randomUUID(), (c) => c.charCodeAt(0)),
       userName: username,
       authenticatorSelection: {
@@ -183,8 +191,8 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
     const credential = await verifyRegistrationResponse({
       response: registrationResponse,
       expectedChallenge: registrationSession.challenge,
-      expectedOrigin: "http://localhost:8910",
-      expectedRPID: "localhost",
+      expectedOrigin: this.origin,
+      expectedRPID: this.rpid,
     }).catch((e) => {
       console.error(e);
       throw new Error("Registration response not verified");
@@ -241,7 +249,7 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
       throw new Error("No user registrations found for this session");
     }
 
-    const rpID = "localhost";
+    const rpID = this.rpid;
 
     const options: PublicKeyCredentialRequestOptionsJSON =
       await generateAuthenticationOptions({
@@ -283,8 +291,8 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
       throw new Error("No passkey found for this user");
     }
 
-    const rpID = "localhost";
-    const origin = "http://localhost:8910";
+    const rpID = this.rpid;
+    const origin = this.origin;
 
     const credential = await verifyAuthenticationResponse({
       response: authenticationResponse,
@@ -312,20 +320,24 @@ export class PasskeyAuthentication implements DefiniteAuthenticatorCS {
   }
 
   getCurrentUser(): BaseUserCS | undefined {
-    const userId = this.sessions.get(getSessionId())?.userId;
-    if (!userId) return;
-    const userName = this.userIds.get(userId)?.username;
+    try {
+      const userId = this.sessions.get(getSessionId())?.userId;
+      if (!userId) return;
+      const userName = this.userIds.get(userId)?.username;
 
-    if (!userName) {
-      throw new Error(
-        "Username not found for user. This should never happen. Please report this bug."
-      );
+      if (!userName) {
+        throw new Error(
+          "Username not found for user. This should never happen. Please report this bug."
+        );
+      }
+
+      return {
+        id: userId,
+        username: userName,
+      };
+    } catch {
+      return;
     }
-
-    return {
-      id: userId,
-      username: userName,
-    };
   }
 
   getDefiniteCurrentUser(): BaseUserCS {

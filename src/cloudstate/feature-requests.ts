@@ -9,8 +9,8 @@ export class FeatureRequestCS {
 
   constructor(
     private auth: DefiniteAuthenticatorCS<UserCS>,
-    public description: string,
     public title: string,
+    public description: string,
     public creator: UserCS
   ) {}
 

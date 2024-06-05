@@ -73,6 +73,12 @@ devDependencies:
   '@simplewebauthn/types':
     specifier: ^10.0.0
     version: 10.0.0
+  '@types/cookie':
+    specifier: ^0.6.0
+    version: 0.6.0
+  cookie:
+    specifier: ^0.6.0
+    version: 0.6.0
   freestyle-sh:
     specifier: ../xcloudplatform/packages/freestyle-sh/dist/npm
     version: link:../xcloudplatform/packages/freestyle-sh/dist/npm
