@@ -1,5 +1,5 @@
 import { FeatureRequestsListCS } from "./feature-requests";
-import { cloudstate } from "freestyle-sh";
+import { cloudstate, useLocal } from "freestyle-sh";
 import {
   PasskeyAuthentication,
   type FinishPasskeyRegistrationJSON,
@@ -18,8 +18,24 @@ export class UserCS {
     this.displayName = displayName;
   }
 
-  setImage(image: string) {
-    this.image = new ImageCS(new Blob([image]));
+  updateProfile(profile: { displayName?: string; image?: Blob }) {
+    const user = useLocal(FeatureRequestsAppCS).getDefiniteCurrentUser();
+    if (user.id !== this.id) {
+      throw new Error("You are not authorized to change other users' profile");
+    }
+
+    if (profile.image) {
+      this.image = new ImageCS(profile.image);
+    }
+
+    if (profile.displayName) {
+      this.displayName = profile.displayName;
+    }
+
+    return {
+      displayName: this.displayName,
+      image: this.image.getUrlPath(),
+    };
   }
 
   getPersonalInfo() {

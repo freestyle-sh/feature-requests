@@ -36,68 +36,36 @@
     });
     await then?.();
   }
-
-  async function configureProfile() {
-    const user = useCloud<typeof UserCS>($userStore.user!.id);
-    user.setDisplayName(displayName).then(() => {
-      userStore.set({
-        user: {
-          ...$userStore.user!,
-          displayName,
-        },
-      });
-    });
-  }
 </script>
 
 <div>
-  {#if $userStore.user?.displayName}
+  {#if $userStore.user}
     <Button class={className} {size} on:click={then || or}>
       <slot />
     </Button>
   {:else}
-    <Dialog.Root
-      open={$userStore.user && $userStore.user?.displayName === undefined}
-    >
+    <Dialog.Root>
       <Dialog.Trigger class={buttonVariants() + className}>
         <slot />
       </Dialog.Trigger>
       <Dialog.Content>
         <div class="grid gap-4">
-          {#if $userStore.user}
-            <Dialog.Header>
-              <Dialog.Title class="text-center">Configure Profile</Dialog.Title>
-            </Dialog.Header>
-            <Label for="name">Display Name</Label>
-            <Input
-              placeholder="My Name"
-              id="name"
-              type="text"
-              bind:value={displayName}
-            />
-            <Dialog.Footer>
-              <Button class="w-full" type="submit" on:click={configureProfile}>
-                Save Profile
-              </Button>
-            </Dialog.Footer>
-          {:else}
-            <Dialog.Header>
-              <Dialog.Title class="text-center">Sign In</Dialog.Title>
-            </Dialog.Header>
-            <Label for="email">Email</Label>
-            <Input
-              placeholder="my@email.com"
-              id="email"
-              type="email"
-              autocomplete="on"
-              bind:value={username}
-            />
-            <Dialog.Footer>
-              <Button class="w-full" type="submit" on:click={handleLogin}>
-                Continue with Passkey
-              </Button>
-            </Dialog.Footer>
-          {/if}
+          <Dialog.Header>
+            <Dialog.Title class="text-center">Sign In</Dialog.Title>
+          </Dialog.Header>
+          <Label for="email">Email</Label>
+          <Input
+            placeholder="my@email.com"
+            id="email"
+            type="email"
+            autocomplete="on"
+            bind:value={username}
+          />
+          <Dialog.Footer>
+            <Button class="w-full" type="submit" on:click={handleLogin}>
+              Continue with Passkey
+            </Button>
+          </Dialog.Footer>
         </div>
       </Dialog.Content>
     </Dialog.Root>

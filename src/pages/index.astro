@@ -35,9 +35,11 @@ const user = await app.getUserInfo();
 <Layout title="Freestyle Astro">
   <main>
     <div>
-      <div class="border-b py-3 flex justify-between px-4 items-center">
+      <div class="border-b h-16 flex justify-between px-4 items-center">
         Freestyle Feature Requests
-        <UserLogin user={user} client:load />
+        <div>
+          <UserLogin user={user} client:load />
+        </div>
       </div>
       <FeatureRequests client:load featureRequests={featureRequets} />
     </div>
