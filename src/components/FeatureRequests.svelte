@@ -10,6 +10,9 @@
   import SignInButton from "./SignInButton.svelte";
   import Button from "./ui/button/button.svelte";
   import Star from "lucide-svelte/icons/star";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+  import { buttonVariants } from "./ui/button";
+  import { EllipsisVerticalIcon } from "lucide-svelte";
 
   export let featureRequests: ReturnType<FeatureRequestsListCS["getRequests"]>;
 
@@ -63,38 +66,69 @@
           {request.description}
         </div>
 
-        <div class="flex gap-2 mt-2">
-          <div class="flex items-center gap-2 text-sm">
-            <Avatar.Root class="h-5 w-5">
-              <Avatar.Image src={request.ownerImageUrl} />
-              {#if request.ownerDisplayName}
-                <Avatar.Fallback>
-                  {request.ownerDisplayName?.slice(0, 1).toUpperCase()}
-                </Avatar.Fallback>
-              {/if}
-            </Avatar.Root>
-            {request.ownerDisplayName}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            on:click={() => {
-              useFeatureRequest(request.id)
-                .upvote()
-                .then((res) => {
-                  request.votes = res.votes;
-                  request.currentUserVoted = res.currentUserVoted;
-                });
-            }}
-          >
-            <Star
-              class="h-4 w-4 mr-2"
-              fill={request.currentUserVoted ? "yellow" : "white"}
-            />
-            <div>
-              {request.votes}
+        <div class="flex justify-between items-center">
+          <div class="flex gap-2 mt-2">
+            <div class="flex items-center gap-2 text-sm">
+              <Avatar.Root class="h-5 w-5">
+                <Avatar.Image src={request.ownerImageUrl} />
+                {#if request.ownerDisplayName}
+                  <Avatar.Fallback>
+                    {request.ownerDisplayName?.slice(0, 1).toUpperCase()}
+                  </Avatar.Fallback>
+                {/if}
+              </Avatar.Root>
+              {request.ownerDisplayName}
             </div>
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              on:click={() => {
+                useFeatureRequest(request.id)
+                  .upvote()
+                  .then((res) => {
+                    request.votes = res.votes;
+                    request.currentUserVoted = res.currentUserVoted;
+                  });
+              }}
+            >
+              <Star
+                class="h-4 w-4 mr-2"
+                fill={request.currentUserVoted ? "yellow" : "white"}
+              />
+              <div>
+                {request.votes}
+              </div>
+            </Button>
+          </div>
+          <div>
+            {#if request.isOwner}
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger
+                  class={buttonVariants({
+                    size: "icon",
+                    variant: "ghost",
+                  })}
+                >
+                  <EllipsisVerticalIcon class="w-4 h-4" />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content>
+                  <DropdownMenu.Group>
+                    <DropdownMenu.Item
+                      on:click={() => {
+                        featureRequestsCS.deleteRequest(request.id).then(() => {
+                          featureRequests = featureRequests.filter(
+                            (req) => req.id !== request.id
+                          );
+                        });
+                      }}
+                    >
+                      Delete
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Group>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            {/if}
+          </div>
         </div>
       </div>
     {/each}

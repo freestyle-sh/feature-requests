@@ -34,7 +34,7 @@ export class FeatureRequestCS {
   }
 
   getInfo() {
-    const user = this.auth.getDefiniteCurrentUser();
+    const user = this.auth.getCurrentUser();
     return {
       id: this.id,
       title: this.title,
