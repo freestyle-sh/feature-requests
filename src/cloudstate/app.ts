@@ -3,7 +3,7 @@ import { cloudstate, useLocal } from "freestyle-sh";
 import {
   PasskeyAuthentication,
   type FinishPasskeyRegistrationJSON,
-} from "./auth";
+} from "freestyle-auth/passkey";
 
 @cloudstate
 export class UserCS {

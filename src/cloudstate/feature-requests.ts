@@ -1,5 +1,5 @@
 import { cloudstate } from "freestyle-sh";
-import { type DefiniteAuthenticatorCS } from "./auth";
+import { type DefiniteAuthenticatorCS } from "freestyle-auth/passkey";
 import type { UserCS } from "./app";
 
 @cloudstate

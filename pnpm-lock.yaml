@@ -29,6 +29,9 @@ dependencies:
   clsx:
     specifier: ^2.1.1
     version: 2.1.1
+  freestyle-auth:
+    specifier: github:freestyle-sh/freestyle-auth
+    version: github.com/freestyle-sh/freestyle-auth/d5e3b307aa680e1107942fd138582fb9a334ee91
   freestyle-deno-astro-adapter:
     specifier: ^5.0.4
     version: 5.0.4(astro@4.9.3)
@@ -5363,3 +5366,9 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+
+  github.com/freestyle-sh/freestyle-auth/d5e3b307aa680e1107942fd138582fb9a334ee91:
+    resolution: {tarball: https://codeload.github.com/freestyle-sh/freestyle-auth/tar.gz/d5e3b307aa680e1107942fd138582fb9a334ee91}
+    name: freestyle-auth
+    version: 1.0.0
+    dev: false

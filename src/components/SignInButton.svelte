@@ -4,7 +4,7 @@
   import {
     handlePasskeyAuthentication,
     handlePasskeyRegistration,
-  } from "../cloudstate/auth";
+  } from "freestyle-auth/passkey";
   import Button from "./ui/button/button.svelte";
   import Input from "./ui/input/input.svelte";
   import * as Dialog from "$lib/components/ui/dialog";

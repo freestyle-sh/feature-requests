@@ -26,7 +26,8 @@
     "tailwind-variants": "^0.2.1",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5",
-    "vite-plugin-mkcert": "^1.17.5"
+    "vite-plugin-mkcert": "^1.17.5",
+    "freestyle-auth": "github:freestyle-sh/freestyle-auth"
   },
   "devDependencies": {
     "@astrojs/node": "^8.2.5",
