@@ -11,16 +11,17 @@
   import Label from "./ui/label/label.svelte";
   import { buttonVariants } from "./ui/button";
   import { userStore } from "$lib/stores/user";
+  import { LoaderCircleIcon } from "lucide-svelte";
 
   export let or: (() => unknown) | undefined = undefined;
   export let then: (() => unknown) | undefined = undefined;
   export let size: "sm" | "default" | "icon" | "lg" = "default";
   export { className as class };
+  export let loading = false;
 
   const auth = useCloud<typeof FeatureRequestsAppCS>("feature-requests-app");
   let className = "";
   let username: string;
-  let displayName: string;
 
   async function handleLogin() {
     const options = await auth.startAuthenticationOrRegistration(username);
@@ -40,7 +41,12 @@
 
 <div>
   {#if $userStore.user}
-    <Button class={className} {size} on:click={then || or}>
+    <Button class={className} {size} on:click={then || or} disabled={loading}>
+      {#if loading}
+        <span>
+          <LoaderCircleIcon class="mr-2 h-4 w-4 animate-spin" />
+        </span>
+      {/if}
       <slot />
     </Button>
   {:else}

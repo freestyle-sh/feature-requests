@@ -33,6 +33,15 @@ export class FeatureRequestCS {
     return user && this.votes.includes(user);
   }
 
+  update(options: { title?: string; description?: string }) {
+    const user = this.auth.getDefiniteCurrentUser();
+    if (user !== this.creator) {
+      throw new Error("You are not authorized to update this feature request");
+    }
+    this.title = options.title ?? this.title;
+    this.description = options.description ?? this.description;
+  }
+
   getInfo() {
     const user = this.auth.getCurrentUser();
     return {
@@ -83,6 +92,6 @@ export class FeatureRequestsListCS {
   }
 
   getRequests() {
-    return this.requests.map((request) => request.getInfo());
+    return this.requests.map((request) => request.getInfo()).reverse();
   }
 }

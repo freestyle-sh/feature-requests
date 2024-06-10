@@ -2,12 +2,14 @@
   import type { UserCS } from "$lib/cloudstate/app";
   import { userStore } from "$lib/stores/user";
   import { useCloud } from "freestyle-sh";
-  import SignIn from "./SignInButton.svelte";
+  import SignInButton from "./SignInButton.svelte";
   import * as Avatar from "./ui/avatar/index";
   import * as Dialog from "./ui/dialog/index";
   import Input from "./ui/input/input.svelte";
   import CameraIcon from "lucide-svelte/icons/camera";
   import { buttonVariants } from "./ui/button";
+  import { useQueryClient } from "@tanstack/svelte-query";
+  import type { FeatureRequestsListCS } from "$lib/cloudstate/feature-requests";
 
   export let user:
     | ReturnType<InstanceType<typeof UserCS>["getPersonalInfo"]>
@@ -16,6 +18,9 @@
   userStore.set({
     user,
   });
+
+  const client = useQueryClient();
+  const app = useCloud<typeof FeatureRequestsListCS>("feature-requests-list");
 
   async function configureProfile() {
     const u = useCloud<typeof UserCS>($userStore.user!.id);
@@ -29,6 +34,11 @@
           displayName: res.displayName,
           image: res.image,
         },
+      });
+
+      client.invalidateQueries({
+        queryKey: [app.getRequests],
+        exact: true,
       });
     });
   }
@@ -105,5 +115,5 @@
     </Dialog.Content>
   </Dialog.Root>
 {:else}
-  <SignIn>Sign In</SignIn>
+  <SignInButton>Sign In</SignInButton>
 {/if}

@@ -4,9 +4,8 @@ import { useCloud } from "freestyle-sh";
 import { FeatureRequestsListCS } from "../cloudstate/feature-requests";
 import { configureFreestyle } from "freestyle-sh";
 import type { FeatureRequestsAppCS } from "$lib/cloudstate/app";
-import FeatureRequests from "$lib/components/FeatureRequests.svelte";
-import UserLogin from "$lib/components/UserProfile.svelte";
 import cookie from "cookie";
+import FeatureRequestsApp from "$lib/components/FeatureRequestsApp.svelte";
 
 configureFreestyle({
   createHeaders: () => Astro.request.headers,
@@ -26,22 +25,13 @@ configureFreestyle({
 const featureRequestsCS = useCloud<typeof FeatureRequestsListCS>(
   "feature-requests-list"
 );
+const featureRequests = await featureRequestsCS.getRequests();
 const app = useCloud<typeof FeatureRequestsAppCS>("feature-requests-app");
-
-const featureRequets = await featureRequestsCS.getRequests();
 const user = await app.getUserInfo();
 ---
 
-<Layout title="Freestyle Astro">
+<Layout title="Freestyle Feature Requests">
   <main>
-    <div>
-      <div class="border-b h-16 flex justify-between px-4 items-center">
-        Freestyle Feature Requests
-        <div>
-          <UserLogin user={user} client:load />
-        </div>
-      </div>
-      <FeatureRequests client:load featureRequests={featureRequets} />
-    </div>
+    <FeatureRequestsApp client:load {featureRequests} {user} />
   </main>
 </Layout>
