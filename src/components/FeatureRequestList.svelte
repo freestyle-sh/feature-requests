@@ -1,61 +1,92 @@
 <script lang="ts">
-  import type { FeatureRequestsListCS } from "$lib/cloudstate/feature-requests";
-  import { createTable, Subscribe, Render } from "svelte-headless-table";
-  import { readable } from "svelte/store";
-  import * as Table from "$lib/components/ui/table";
+  import { useCloud } from "freestyle-sh";
+  import { type FeatureRequestsListCS } from "../cloudstate/feature-requests";
+  import FeatureRequest from "./FeatureRequest.svelte";
+  import {
+    createMutation,
+    createQuery,
+    useQueryClient,
+  } from "@tanstack/svelte-query";
+  import { fade } from "svelte/transition";
+  import { flip } from "svelte/animate";
+  import type { FeatureRequestsAppCS } from "$lib/cloudstate/app";
+  import FeatureRequestEditor from "./FeatureRequestEditor.svelte";
 
-  export let data: ReturnType<
-    InstanceType<typeof FeatureRequestsListCS>["getRequests"]
-  >;
+  export let featureRequests: ReturnType<FeatureRequestsListCS["getRequests"]>;
+  export let user: ReturnType<FeatureRequestsAppCS["getUserInfo"]>;
 
-  const table = createTable(readable(data));
+  const featureRequestsCS = useCloud<typeof FeatureRequestsListCS>(
+    "feature-requests-list"
+  );
 
-  const columns = table.createColumns([
-    table.column({
-      accessor: "title",
-      header: "Title",
-    }),
-    table.column({
-      accessor: "description",
-      header: "Description",
-    }),
-  ]);
+  const requestRequestsQuery = createQuery({
+    queryKey: [featureRequestsCS.getRequests],
+    queryFn: () => featureRequestsCS.getRequests(),
+    initialData: featureRequests,
+  });
 
-  const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
-    table.createViewModel(columns);
+  const app = useCloud<typeof FeatureRequestsAppCS>("feature-requests-app");
+  const userQuery = createQuery({
+    queryKey: [app.getUserInfo],
+    queryFn: () => app.getUserInfo(),
+    initialData: user!,
+  });
+
+  const client = useQueryClient();
+  const addRequestMutation = createMutation({
+    mutationFn: ({
+      title,
+      description,
+    }: {
+      title: string;
+      description: string;
+    }) => featureRequestsCS.createRequest(title, description),
+    onSuccess: () => {
+      client.invalidateQueries({
+        queryKey: [featureRequestsCS.getRequests],
+        exact: true,
+      });
+    },
+  });
 </script>
 
-<div class="rounded-md border">
-  <Table.Root {...$tableAttrs}>
-    <Table.Header>
-      {#each $headerRows as headerRow}
-        <Subscribe rowAttrs={headerRow.attrs()}>
-          <Table.Row>
-            {#each headerRow.cells as cell (cell.id)}
-              <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()}>
-                <Table.Head {...attrs}>
-                  <Render of={cell.render()} />
-                </Table.Head>
-              </Subscribe>
-            {/each}
-          </Table.Row>
-        </Subscribe>
-      {/each}
-    </Table.Header>
-    <Table.Body {...$tableBodyAttrs}>
-      {#each $pageRows as row (row.id)}
-        <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-          <Table.Row {...rowAttrs}>
-            {#each row.cells as cell (cell.id)}
-              <Subscribe attrs={cell.attrs()} let:attrs>
-                <Table.Cell {...attrs}>
-                  <Render of={cell.render()} />
-                </Table.Cell>
-              </Subscribe>
-            {/each}
-          </Table.Row>
-        </Subscribe>
-      {/each}
-    </Table.Body>
-  </Table.Root>
+<div class="max-w-4xl mx-auto">
+  <h2 class="text-center font-bold text-lg mt-8">Feature Requests</h2>
+  <div class="my-8">
+    <FeatureRequestEditor
+      buttonAction={({ title, description }) => {
+        return $addRequestMutation.mutateAsync({
+          title,
+          description,
+        });
+      }}
+      buttonText="Submit Request"
+    />
+  </div>
+  <div class="grid gap-2">
+    {#each $requestRequestsQuery.data as request (request.id)}
+      <div
+        animate:flip={{
+          duration: 300,
+        }}
+        transition:fade
+      >
+        <FeatureRequest {request} />
+      </div>
+    {/each}
+    {#if $addRequestMutation.isPending}
+      <FeatureRequest
+        request={{
+          id: crypto.randomUUID(),
+          title: $addRequestMutation.variables.title,
+          description: $addRequestMutation.variables.description,
+          currentUserVoted: true,
+          votes: 1,
+          isOwner: true,
+          ownerDisplayName: $userQuery.data?.displayName,
+          ownerImageUrl: $userQuery.data?.image ?? "",
+        }}
+      />
+    {/if}
+  </div>
 </div>

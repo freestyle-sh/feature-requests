@@ -18,6 +18,7 @@
     "auth-astro": "^4.1.1",
     "bits-ui": "^0.21.10",
     "clsx": "^2.1.1",
+    "freestyle-auth": "github:freestyle-sh/freestyle-auth",
     "freestyle-deno-astro-adapter": "^5.0.4",
     "lucide-svelte": "^0.383.0",
     "sharp": "^0.33.3",
@@ -34,7 +35,10 @@
     "@simplewebauthn/browser": "^10.0.0",
     "@simplewebauthn/server": "^10.0.0",
     "@simplewebauthn/types": "^10.0.0",
-    "freestyle-sh": "../xcloudplatform/packages/freestyle-sh/dist/npm",
+    "@tanstack/svelte-query": "^5.40.3",
+    "@types/cookie": "^0.6.0",
+    "cookie": "^0.6.0",
+    "freestyle-sh": "link:../xcloudplatform/packages/freestyle-sh/dist/npm",
     "svelte-headless-table": "^0.18.2"
   }
 }

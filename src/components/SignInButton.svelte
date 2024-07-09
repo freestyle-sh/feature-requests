@@ -1,21 +1,26 @@
 <script lang="ts">
   import { useCloud } from "freestyle-sh";
-  import type { FeatureRequestsAppCS } from "../cloudstate/app";
+  import type { FeatureRequestsAppCS, UserCS } from "../cloudstate/app";
   import {
     handlePasskeyAuthentication,
     handlePasskeyRegistration,
-  } from "../cloudstate/auth";
+  } from "freestyle-auth/passkey";
   import Button from "./ui/button/button.svelte";
   import Input from "./ui/input/input.svelte";
   import * as Dialog from "$lib/components/ui/dialog";
   import Label from "./ui/label/label.svelte";
   import { buttonVariants } from "./ui/button";
   import { userStore } from "$lib/stores/user";
+  import { LoaderCircleIcon } from "lucide-svelte";
 
   export let or: (() => unknown) | undefined = undefined;
   export let then: (() => unknown) | undefined = undefined;
+  export let size: "sm" | "default" | "icon" | "lg" = "default";
+  export { className as class };
+  export let loading = false;
 
   const auth = useCloud<typeof FeatureRequestsAppCS>("feature-requests-app");
+  let className = "";
   let username: string;
 
   async function handleLogin() {
@@ -36,32 +41,38 @@
 
 <div>
   {#if $userStore.user}
-    <Button on:click={then || or}>
+    <Button class={className} {size} on:click={then || or} disabled={loading}>
+      {#if loading}
+        <span>
+          <LoaderCircleIcon class="mr-2 h-4 w-4 animate-spin" />
+        </span>
+      {/if}
       <slot />
     </Button>
   {:else}
     <Dialog.Root>
-      <Dialog.Trigger class={buttonVariants()}>
+      <Dialog.Trigger class={buttonVariants() + className}>
         <slot />
       </Dialog.Trigger>
       <Dialog.Content>
-        <Dialog.Header>
-          <Dialog.Title class="text-center">Sign In</Dialog.Title>
+        <div class="grid gap-4">
+          <Dialog.Header>
+            <Dialog.Title class="text-center">Sign In</Dialog.Title>
+          </Dialog.Header>
           <Label for="email">Email</Label>
-          <div class="grid gap-4">
-            <Input
-              id="email"
-              type="email"
-              autocomplete="on"
-              bind:value={username}
-            />
-            <Dialog.Footer>
-              <Button class="w-full" type="submit" on:click={handleLogin}>
-                Continue with Passkey
-              </Button>
-            </Dialog.Footer>
-          </div>
-        </Dialog.Header>
+          <Input
+            placeholder="my@email.com"
+            id="email"
+            type="email"
+            autocomplete="on"
+            bind:value={username}
+          />
+          <Dialog.Footer>
+            <Button class="w-full" type="submit" on:click={handleLogin}>
+              Continue with Passkey
+            </Button>
+          </Dialog.Footer>
+        </div>
       </Dialog.Content>
     </Dialog.Root>
   {/if}

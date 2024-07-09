@@ -1,22 +1,55 @@
 import { FeatureRequestsListCS } from "./feature-requests";
-import { cloudstate } from "freestyle-sh";
+import { cloudstate, useLocal } from "freestyle-sh";
 import {
   PasskeyAuthentication,
   type FinishPasskeyRegistrationJSON,
-} from "./auth";
+} from "freestyle-auth/passkey";
 
 @cloudstate
 export class UserCS {
   constructor(
     public id: string,
     public username: string,
-    public image: ImageCS
+    public image: ImageCS,
+    public displayName?: string
   ) {}
 
-  getInfo() {
+  setDisplayName(displayName: string) {
+    this.displayName = displayName;
+  }
+
+  updateProfile(profile: { displayName?: string; image?: Blob }) {
+    const user = useLocal(FeatureRequestsAppCS).getDefiniteCurrentUser();
+    if (user.id !== this.id) {
+      throw new Error("You are not authorized to change other users' profile");
+    }
+
+    if (profile.image) {
+      this.image = new ImageCS(profile.image);
+    }
+
+    if (profile.displayName) {
+      this.displayName = profile.displayName;
+    }
+
+    return {
+      displayName: this.displayName,
+      image: this.image.getUrlPath(),
+    };
+  }
+
+  getPersonalInfo() {
     return {
       username: this.username,
       id: this.id,
+      image: this.image.getUrlPath(),
+      displayName: this.displayName,
+    };
+  }
+
+  getPublicInfo() {
+    return {
+      displayName: this.displayName,
       image: this.image.getUrlPath(),
     };
   }
@@ -44,14 +77,25 @@ class ImageCS {
 @cloudstate
 export class FeatureRequestsAppCS extends PasskeyAuthentication {
   static id = "feature-requests-app" as const;
+
+  get rpid() {
+    return import.meta.env.DEV ? "localhost" : "feature-requests.freestyle.dev";
+  }
+
+  get origin() {
+    return import.meta.env.DEV
+      ? "http://localhost:8910"
+      : "https://feature-requests.freestyle.dev";
+  }
+
   users: UserCS[] = [];
   featureList = new FeatureRequestsListCS("feature-requests-list", this);
 
   async finishRegistration(passkey: FinishPasskeyRegistrationJSON) {
     const info = await super.finishRegistration(passkey);
-    const blob = await fetch("https://picsum.photos/200/200").then((res) =>
-      res.blob()
-    );
+    const blob = await fetch(
+      `https://api.dicebear.com/8.x/bottts/svg?seed=${Math.random()}`
+    ).then((res) => res.blob());
     const user = new UserCS(info.id, info.username, new ImageCS(blob));
     this.users.push(user);
     return {
@@ -67,7 +111,7 @@ export class FeatureRequestsAppCS extends PasskeyAuthentication {
   }
 
   getUserInfo() {
-    return this.getCurrentUser()?.getInfo();
+    return this.getCurrentUser()?.getPersonalInfo();
   }
 
   getDefiniteCurrentUser() {
